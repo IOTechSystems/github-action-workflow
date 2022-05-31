@@ -1,0 +1,42 @@
+###########################################################
+# Copyright (C) 2022 IOTech Ltd
+###########################################################
+
+name: sonarqube-scan
+
+on:
+  workflow_call:
+    inputs: 
+      PROJECT_NAME:
+        description: The repository name for SonarQube.
+        required: true
+        type: string   
+ 
+permissions:
+  contents: read
+
+jobs:
+  sonarqube-scan:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+      # Install Golang
+      - uses: actions/setup-go@v3
+        with:
+          # Retrieve go version from go.mod
+          go-version-file: go.mod 
+      - name: Run unit tests
+        run: |
+          sudo apt update && sudo apt-get install libzmq3-dev
+          make test
+      # Reference the master branch of sonarsource/sonarqube-scan-action
+      - uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarqube.iotechsys.com/
+        with:
+          # set sonar.qualitygate.wait=true to fail the job if the Quality Gate is red
+          args: >
+            -Dsonar.projectKey=${{ inputs.PROJECT_NAME }}
+            -Dsonar.qualitygate.wait=true
