@@ -1,0 +1,50 @@
+###########################################################
+# Copyright (C) 2022 IOTech Ltd
+###########################################################
+
+name: golangci-lint
+
+on:
+  workflow_call:
+    inputs:
+      WORKING_DIRECTORY:
+        description: The working directory, default is project root.
+        required: false
+        type: string
+        default: "."
+      GO_LINT_CONFIG_PATH:
+        # https://golangci-lint.run/usage/configuration#config-file
+        description: The GolangCI-Lint config path, default is no config.
+        required: false
+        type: string
+
+permissions:
+  contents: read
+ 
+jobs:
+  golangci:
+    name: lint
+    runs-on: ubuntu-latest
+    env:
+      GOLANGCI_LINT_VERSION: v1.42.1
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+      # Install Golang
+      - uses: actions/setup-go@v3
+        with:
+          # Retrieve go version from go.mod
+          go-version-file: "${{ inputs.WORKING_DIRECTORY }}/go.mod"     
+      # Run Go linters
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
+          version: ${{ env.GOLANGCI_LINT_VERSION }}
+
+          # Optional: working directory, useful for monorepos
+          working-directory: ${{ inputs.WORKING_DIRECTORY }}
+
+          # Optional: golangci-lint command line arguments.
+          args: "${{ inputs.GO_LINT_CONFIG_PATH != '' && format('--config {0}', inputs.GO_LINT_CONFIG_PATH) || '--no-config' }}"
+
