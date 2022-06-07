@@ -14,6 +14,7 @@ The workflow runs golangci-lint action and reports issues from linters.
 |--------|-------------|
 | `WORKING_DIRECTORY` | The working directory, default is project root. |
 | `GO_LINT_CONFIG_PATH` | The GolangCI-Lint config path, default is no config. |
+| `REQUIRED_PACKAGES` | The required packages are installed by `apt`, seperate the packages with spaces. |
 
 ### sonarqube-scan
 
