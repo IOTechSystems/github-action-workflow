@@ -57,6 +57,6 @@ jobs:
           working-directory: ${{ inputs.WORKING_DIRECTORY }}
 
           # Optional: golangci-lint command line arguments.
-          args: " --print-issued-lines ${{ inputs.GO_LINT_CONFIG_PATH != '' && format('--config {0}', inputs.GO_LINT_CONFIG_PATH) || '--no-config' }}"
+          args: "--timeout 5m --print-issued-lines ${{ inputs.GO_LINT_CONFIG_PATH != '' && format('--config {0}', inputs.GO_LINT_CONFIG_PATH) || '--no-config' }}"
           skip-cache: true
 
