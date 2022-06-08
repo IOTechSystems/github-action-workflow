@@ -17,6 +17,10 @@ on:
         description: The GolangCI-Lint config path, default is no config.
         required: false
         type: string
+      REQUIRED_PACKAGES:
+        description: The required packages are installed by apt, seperate the packages with spaces.
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -34,8 +38,15 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           # Retrieve go version from go.mod
-          go-version-file: "${{ inputs.WORKING_DIRECTORY }}/go.mod"     
-      # Run Go linters
+          go-version-file: "${{ inputs.WORKING_DIRECTORY }}/go.mod"   
+      - name: Install required packages
+        if: ${{ inputs.REQUIRED_PACKAGES != '' }}
+        run: |
+          sudo apt update && sudo apt install ${{ inputs.REQUIRED_PACKAGES }}
+      - name: Run go mod tidy
+        run: |
+          go mod tidy     
+      # Run Go linters       
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
@@ -46,5 +57,6 @@ jobs:
           working-directory: ${{ inputs.WORKING_DIRECTORY }}
 
           # Optional: golangci-lint command line arguments.
-          args: "${{ inputs.GO_LINT_CONFIG_PATH != '' && format('--config {0}', inputs.GO_LINT_CONFIG_PATH) || '--no-config' }}"
+          args: " --print-issued-lines ${{ inputs.GO_LINT_CONFIG_PATH != '' && format('--config {0}', inputs.GO_LINT_CONFIG_PATH) || '--no-config' }}"
+          skip-cache: true
 
