@@ -13,7 +13,7 @@ The workflow runs golangci-lint action and reports issues from linters.
 | Inputs | Description |
 |--------|-------------|
 | `WORKING_DIRECTORY` | The working directory, default is project root. |
-| `GO_LINT_CONFIG_PATH` | The GolangCI-Lint config path, default is no config. |
+| `GO_LINT_CONFIG_PATH` | The GolangCI-Lint config path which is relative to `WORKING_DIRECTORY`, default is no config. |
 | `REQUIRED_PACKAGES` | The required packages are installed by `apt`, seperate the packages with spaces. |
 
 ### sonarqube-scan
@@ -49,6 +49,8 @@ jobs:
         WORKING_DIRECTORY: "."
         # Optional: golangci-go config path, default is no config
         GO_LINT_CONFIG_PATH: ""
+        # Optional: required packages installed by apt
+        REQUIRED_PACKAGES: ""
         
     call-sonar-scan:
       uses: IOTechSystems/github-action-workflow/.github/workflows/reusable-sonarqube-scan.yml@main
