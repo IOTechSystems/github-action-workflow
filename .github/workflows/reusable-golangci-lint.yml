@@ -31,6 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GOLANGCI_LINT_VERSION: v1.42.1
+      GOLANGCI_LINT_FLAGS: --print-issued-lines --max-same-issues 50
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
@@ -44,6 +45,7 @@ jobs:
         run: |
           sudo apt update && sudo apt install ${{ inputs.REQUIRED_PACKAGES }}
       - name: Run go mod tidy
+        working-directory: ${{ inputs.WORKING_DIRECTORY }}
         run: |
           go mod tidy     
       # Run Go linters       
@@ -57,6 +59,6 @@ jobs:
           working-directory: ${{ inputs.WORKING_DIRECTORY }}
 
           # Optional: golangci-lint command line arguments.
-          args: " --print-issued-lines ${{ inputs.GO_LINT_CONFIG_PATH != '' && format('--config {0}', inputs.GO_LINT_CONFIG_PATH) || '--no-config' }}"
+          args: "${{ env.GOLANGCI_LINT_FLAGS }} ${{ inputs.GO_LINT_CONFIG_PATH != '' && format('--config {0}', inputs.GO_LINT_CONFIG_PATH) || '--no-config' }}"
           skip-cache: true
 
