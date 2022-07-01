@@ -14,13 +14,18 @@ on:
         default: "."
       GO_LINT_CONFIG_PATH:
         # https://golangci-lint.run/usage/configuration#config-file
-        description: The GolangCI-Lint config path, default is no config.
+        description: The GolangCI-Lint config path which is relative to WORKING_DIRECTORY, default is no config.
         required: false
         type: string
       REQUIRED_PACKAGES:
         description: The required packages are installed by apt, seperate the packages with spaces.
         required: false
         type: string
+      USE_PRIVATE_MODULE:
+        description: If true, set up the enviroment for the private go modules, and retrieve the modules versions from scripts/Jenkinsfile.
+        required: false
+        type: boolean
+        default: false  
 
 permissions:
   contents: read
@@ -31,7 +36,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GOLANGCI_LINT_VERSION: v1.42.1
-      GOLANGCI_LINT_FLAGS: --print-issued-lines --max-same-issues 50
+      GOLANGCI_LINT_FLAGS: --print-issued-lines --max-same-issues 50 --build-tags dev
+      GOPRIVATE: github.com/IOTechSystems
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
@@ -44,9 +50,28 @@ jobs:
         if: ${{ inputs.REQUIRED_PACKAGES != '' }}
         run: |
           sudo apt update && sudo apt install ${{ inputs.REQUIRED_PACKAGES }}
+      # Set up environment for private modules
+      - name: Set up for private modules
+        if: ${{ inputs.USE_PRIVATE_MODULE }}
+        run: |
+          echo "license-version=$(grep -E '(licenseValidatorGoVersion|LICENSE_VALIDATOR_GO_VERSION):' scripts/Jenkinsfile | cut -d '"' -f 2)" >> $GITHUB_ENV
+          echo "device-skd=$(grep -E 'deviceSdkGoVersion:' scripts/Jenkinsfile | cut -d '"' -f 2)" >> $GITHUB_ENV
+          git config --global --add url.https://${{ secrets.JENKINS_PAT }}@${{ env.GOPRIVATE }}.insteadOf https://${{ env.GOPRIVATE }}  
+      # Use private license-validator-go module
+      - name: Replace license-validator-go module
+        # variable from the previous step
+        if: ${{ env.license-version }}
+        run: sed -i "s#\./\(license.*\)#${{ env.GOPRIVATE }}/\1 ${{ env.license-version }}#" ${{ inputs.WORKING_DIRECTORY }}/go.mod
+      # Use private device-sdk-go-private module
+      - name: Replace device-sdk-go-private module
+        # variable from the previous step
+        if: ${{ env.device-skd }}
+        run: sed -i "s#\./\(device-sdk.*\)#${{ env.GOPRIVATE }}/\1/v2 ${{ env.device-skd }}#" ${{ inputs.WORKING_DIRECTORY }}/go.mod
+      # Load packages
       - name: Run go mod tidy
         working-directory: ${{ inputs.WORKING_DIRECTORY }}
         run: |
+          cat go.mod | grep replace
           go mod tidy     
       # Run Go linters       
       - name: golangci-lint
