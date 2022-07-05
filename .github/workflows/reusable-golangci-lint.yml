@@ -71,7 +71,7 @@ jobs:
       - name: Run go mod tidy
         working-directory: ${{ inputs.WORKING_DIRECTORY }}
         run: |
-          cat go.mod | grep replace
+          grep replace go.mod || true
           go mod tidy     
       # Run Go linters       
       - name: golangci-lint
