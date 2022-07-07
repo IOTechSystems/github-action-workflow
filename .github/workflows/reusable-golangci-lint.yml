@@ -61,12 +61,12 @@ jobs:
       - name: Replace license-validator-go module
         # variable from the previous step
         if: ${{ env.license-version }}
-        run: sed -i "s#\./\(license.*\)#${{ env.GOPRIVATE }}/\1 ${{ env.license-version }}#" ${{ inputs.WORKING_DIRECTORY }}/go.mod
+        run: sed -i "s#\(=> \).*\(license.*\)#\1${{ env.GOPRIVATE }}/\2 ${{ env.license-version }}#" ${{ inputs.WORKING_DIRECTORY }}/go.mod
       # Use private device-sdk-go-private module
       - name: Replace device-sdk-go-private module
         # variable from the previous step
         if: ${{ env.device-skd }}
-        run: sed -i "s#\./\(device-sdk.*\)#${{ env.GOPRIVATE }}/\1/v2 ${{ env.device-skd }}#" ${{ inputs.WORKING_DIRECTORY }}/go.mod
+        run: sed -i "s#\(=> \).*\(device-sdk.*\)#\1${{ env.GOPRIVATE }}/\2/v2 ${{ env.device-skd }}#" ${{ inputs.WORKING_DIRECTORY }}/go.mod
       # Load packages
       - name: Run go mod tidy
         working-directory: ${{ inputs.WORKING_DIRECTORY }}
