@@ -25,6 +25,17 @@ The workflow runs sonarqube-scan action to detect Bugs, Vulnerabilities and Code
 |--------|-------------|
 | `PROJECT_NAME` | **Required.** The repository name for SonarQube. |
 
+### eslint
+
+The workflow runs `reviewdog/action-eslint` action and reports issues from eslint.
+
+| Inputs | Description                                                                                              |
+|--------|----------------------------------------------------------------------------------------------------------|
+| `WORKING_DIRECTORY` | The working directory. Default is project root. |
+| `USE_PRIVATE_MODULE` | If true, set up the enviroment for the private node modules. Default is false. |
+| `REPORTER` | Reporter of reviewdog command [github-pr-check,github-check,github-pr-review]. Default is github-pr-review.|
+| `ESLINT_FLAGS` | Flags and args of eslint command. Default is "." |
+
 ## Example
 
 An Example of using the reusable workflows in a caller workflow:
@@ -60,4 +71,12 @@ jobs:
         PROJECT_NAME: go-mod-core-contracts
       # Required: pass SONAR_TOKEN to the reusable workflow  
       secrets: inherit
+
+    call-eslint:
+      uses: IOTechSystems/github-action-workflow/.github/workflows/reusable-eslint.yml@main
+      with:
+        # Optional: working directory, default is project root 
+        WORKING_DIRECTORY: "client"
+        # Optional: Flags and args of eslint command. Default is "."
+        ESLINT_FLAGS: "src/"              
 ```
