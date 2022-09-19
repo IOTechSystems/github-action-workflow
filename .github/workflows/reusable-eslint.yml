@@ -27,13 +27,6 @@ on:
         required: false
         type: string
         default: "."
-    secrets:
-      REPO_TOKEN:
-        description: The GITHUB_TOKEN token from the caller repository to create PR comments.
-        required: true
-      NPM_PRIVATE_PAT:
-        description: The token to install the private node modules.
-        required: false
 
 permissions:
   contents: read
@@ -63,7 +56,6 @@ jobs:
       # Run ESLint checks
       - uses: reviewdog/action-eslint@v1
         with:
-          github_token: ${{ secrets.REPO_TOKEN }}
           reporter: ${{ inputs.REPORTER }}
           workdir: ${{ inputs.WORKING_DIRECTORY }}
           fail_on_error: true
