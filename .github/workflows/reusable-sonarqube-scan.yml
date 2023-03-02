@@ -29,6 +29,7 @@ jobs:
       - name: Run unit tests
         run: |
           sudo apt update && sudo apt-get install libzmq3-dev
+          make tidy
           make test
       # Reference the master branch of sonarsource/sonarqube-scan-action
       - uses: sonarsource/sonarqube-scan-action@master
