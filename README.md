@@ -16,6 +16,7 @@ The workflow runs golangci-lint action and reports issues from linters.
 | `GO_LINT_CONFIG_PATH` | The GolangCI-Lint config path which is relative to `WORKING_DIRECTORY`, default is no config. |
 | `REQUIRED_PACKAGES` | The required packages are installed by `apt`, seperate the packages with spaces. |
 | `USE_PRIVATE_MODULE` | If true, set up the enviroment for the private go modules, and retrieve the modules versions from scripts/Jenkinsfile. |
+| `GQL_DIRECTORY` | The directory which defines the GraphQL schema and gqlgen generated files, default is an empty string. |
 
 ### sonarqube-scan
 
