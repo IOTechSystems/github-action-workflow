@@ -22,7 +22,7 @@ on:
         required: false
         type: string
       USE_PRIVATE_MODULE:
-        description: If true, set up the enviroment for the private go modules, and retrieve the modules versions from scripts/Jenkinsfile.
+        description: If true, set up the environment for the private go modules, and retrieve the modules versions from scripts/Jenkinsfile.
         required: false
         type: boolean
         default: false  
@@ -30,7 +30,6 @@ on:
         description: The directory which defines the GraphQL schema and gqlgen generated files, default is an empty string.
         required: false
         type: string
-        default: ""
 
 permissions:
   contents: read
@@ -60,7 +59,7 @@ jobs:
         if: ${{ inputs.USE_PRIVATE_MODULE }}
         run: |
           echo "license-version=$(grep -E '(licenseValidatorGoVersion|LICENSE_VALIDATOR_GO_VERSION):' scripts/Jenkinsfile | cut -d '"' -f 2)" >> $GITHUB_ENV
-          echo "device-skd=$(grep -E 'deviceSdkGoVersion:' scripts/Jenkinsfile | cut -d '"' -f 2)" >> $GITHUB_ENV
+          echo "device-sdk=$(grep -E 'deviceSdkGoVersion:' scripts/Jenkinsfile | cut -d '"' -f 2)" >> $GITHUB_ENV
           git config --global --add url.https://${{ secrets.JENKINS_PAT }}@${{ env.GOPRIVATE }}.insteadOf https://${{ env.GOPRIVATE }}  
       # Use private license-validator-go module
       - name: Replace license-validator-go module
@@ -70,8 +69,8 @@ jobs:
       # Use private device-sdk-go-private module
       - name: Replace device-sdk-go-private module
         # variable from the previous step
-        if: ${{ env.device-skd }}
-        run: sed -i "s#\(=> \).*\(device-sdk.*\)#\1${{ env.GOPRIVATE }}/\2/v2 ${{ env.device-skd }}#" ${{ inputs.WORKING_DIRECTORY }}/go.mod
+        if: ${{ env.device-sdk }}
+        run: sed -i "s#\(=> \).*\(device-sdk.*\)#\1${{ env.GOPRIVATE }}/\2/v2 ${{ env.device-sdk }}#" ${{ inputs.WORKING_DIRECTORY }}/go.mod
       # Load packages
       - name: Run go mod tidy
         working-directory: ${{ inputs.WORKING_DIRECTORY }}
@@ -82,8 +81,9 @@ jobs:
       - name: Check graphql dir existence
         id: check_graph_dir
         working-directory: ${{ inputs.WORKING_DIRECTORY }}
+        if: ${{ inputs.GQL_DIRECTORY != '' }}
         run: |
-          [ ! -z ${{ inputs.GQL_DIRECTORY }} ] && [ -d ${{ inputs.GQL_DIRECTORY }} ] && echo "dir_exists=true" >> "$GITHUB_OUTPUT"
+          [ -d ${{ inputs.GQL_DIRECTORY }} ] && echo "dir_exists=true" >> "$GITHUB_OUTPUT"
       # Run gqlgen to generate the generated.go file if check_graph_dir step is true
       - name: Run gqlgen
         working-directory: ${{ inputs.WORKING_DIRECTORY }}
