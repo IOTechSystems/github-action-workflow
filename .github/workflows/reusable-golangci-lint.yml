@@ -30,7 +30,6 @@ on:
         description: The directory which defines the GraphQL schema and gqlgen generated files, default is an empty string.
         required: false
         type: string
-        default: ""
 
 permissions:
   contents: read
@@ -82,8 +81,9 @@ jobs:
       - name: Check graphql dir existence
         id: check_graph_dir
         working-directory: ${{ inputs.WORKING_DIRECTORY }}
+        if: ${{ inputs.GQL_DIRECTORY != '' }}
         run: |
-          [ ! -z ${{ inputs.GQL_DIRECTORY }} ] && [ -d ${{ inputs.GQL_DIRECTORY }} ] && echo "dir_exists=true" >> "$GITHUB_OUTPUT"
+          [ -d ${{ inputs.GQL_DIRECTORY }} ] && echo "dir_exists=true" >> "$GITHUB_OUTPUT"
       # Run gqlgen to generate the generated.go file if check_graph_dir step is true
       - name: Run gqlgen
         working-directory: ${{ inputs.WORKING_DIRECTORY }}
