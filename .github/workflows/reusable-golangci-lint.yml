@@ -45,9 +45,9 @@ jobs:
       GOPRIVATE: github.com/IOTechSystems
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       # Install Golang
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v5
         with:
           # Retrieve go version from go.mod
           go-version-file: "${{ inputs.WORKING_DIRECTORY }}/go.mod"   
@@ -92,7 +92,7 @@ jobs:
         run: make gqlgen
       # Run Go linters       
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@c67416616c29c3c48d26b59c45cadb56966d80aa
         with:
           # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
           version: ${{ env.GOLANGCI_LINT_VERSION }}
