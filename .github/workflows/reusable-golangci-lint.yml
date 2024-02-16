@@ -50,7 +50,8 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           # Retrieve go version from go.mod
-          go-version-file: "${{ inputs.WORKING_DIRECTORY }}/go.mod"   
+          go-version-file: "${{ inputs.WORKING_DIRECTORY }}/go.mod"  
+          cache-dependency-path: "${{ inputs.WORKING_DIRECTORY }}/go.sum"
       - name: Install required packages
         if: ${{ inputs.REQUIRED_PACKAGES != '' }}
         run: |
@@ -66,12 +67,12 @@ jobs:
       - name: Replace license-validator-go module
         # variable from the previous step
         if: ${{ env.license-version }}
-        run: sed -i "s#\(=> \).*\(license.*\)#\1${{ env.GOPRIVATE }}/\2 ${{ env.license-version }}#" ${{ inputs.WORKING_DIRECTORY }}/go.mod
+        run: sed -i "s#\(license.*\)\(=> \).*#\1\2${{ env.GOPRIVATE }}/\1 ${{ env.license-version }}#" ${{ inputs.WORKING_DIRECTORY }}/go.mod
       # Use private device-sdk-go-private module
       - name: Replace device-sdk-go-private module
         # variable from the previous step
         if: ${{ env.device-sdk }}
-        run: sed -i "s#\(=> \).*\(device-sdk.*\)#\1${{ env.GOPRIVATE }}/\2/v2 ${{ env.device-sdk }}#" ${{ inputs.WORKING_DIRECTORY }}/go.mod
+        run: sed -i "s#\(device-sdk.*\)\(=> \).*#\1\2${{ env.GOPRIVATE }}/\1 ${{ env.device-sdk }}#" ${{ inputs.WORKING_DIRECTORY }}/go.mod
       # Load packages
       - name: Run go mod tidy
         working-directory: ${{ inputs.WORKING_DIRECTORY }}
