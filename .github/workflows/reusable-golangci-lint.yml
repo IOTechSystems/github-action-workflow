@@ -36,7 +36,7 @@ permissions:
  
 jobs:
   golangci:
-    if: ${{ github.actor != 'dependabot[bot]' }}
+    if: ${{ github.actor != 'dependabot[bot]' }} || contains(github.head_ref, 'edgexfoundry')
     name: lint
     runs-on: ubuntu-latest
     env:
