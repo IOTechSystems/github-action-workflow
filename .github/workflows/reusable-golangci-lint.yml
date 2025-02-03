@@ -78,7 +78,7 @@ jobs:
       - name: Replace opc-ua-browser module
         # variable from the previous step
         if: ${{ env.opc-ua-browser-version }}
-        run: sed -i "s#\(opc-ua-browser\)\(=> \).*#\1\2${{ env.GOPRIVATE }}/\1 ${{ env.opc-ua-browser-version }}#" ${{ inputs.WORKING_DIRECTORY }}/go.mod
+        run: sed -i "s#\(opc-ua-browser.*\)\(=> \).*#\1\2${{ env.GOPRIVATE }}/\1 ${{ env.opc-ua-browser-version }}#" ${{ inputs.WORKING_DIRECTORY }}/go.mod
       # Load packages
       - name: Run go mod tidy
         working-directory: ${{ inputs.WORKING_DIRECTORY }}
