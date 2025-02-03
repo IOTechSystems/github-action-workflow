@@ -1,5 +1,5 @@
 ###########################################################
-# Copyright (C) 2022 IOTech Ltd
+# Copyright (C) 2022-2025 IOTech Ltd
 ###########################################################
 
 name: golangci-lint
@@ -62,7 +62,8 @@ jobs:
         run: |
           echo "license-version=$(grep -E '(licenseValidatorGoVersion|LICENSE_VALIDATOR_GO_VERSION):' scripts/Jenkinsfile | cut -d '"' -f 2)" >> $GITHUB_ENV
           echo "device-sdk=$(grep -E 'deviceSdkGoVersion:' scripts/Jenkinsfile | cut -d '"' -f 2)" >> $GITHUB_ENV
-          git config --global --add url.https://${{ secrets.JENKINS_PAT }}@${{ env.GOPRIVATE }}.insteadOf https://${{ env.GOPRIVATE }}  
+          echo "opc-ua-browser-version=$(grep -E '(opcUaBrowserVersion|OPC_UA_BROWSER_VERSION):' scripts/Jenkinsfile | cut -d '"' -f 2)" >> $GITHUB_ENV
+          git config --global --add url.https://${{ secrets.JENKINS_PAT }}@${{ env.GOPRIVATE }}.insteadOf https://${{ env.GOPRIVATE }}
       # Use private license-validator-go module
       - name: Replace license-validator-go module
         # variable from the previous step
@@ -73,6 +74,11 @@ jobs:
         # variable from the previous step
         if: ${{ env.device-sdk }}
         run: sed -i "s#\(device-sdk-go\)\(.*\)\(=> \).*#\1\2\3${{ env.GOPRIVATE }}/\1-private\2 ${{ env.device-sdk }}#" ${{ inputs.WORKING_DIRECTORY }}/go.mod
+      # Use private opc-ua-browser module
+      - name: Replace opc-ua-browser module
+        # variable from the previous step
+        if: ${{ env.opc-ua-browser-version }}
+        run: sed -i "s#\(opc-ua-browser\)\(=> \).*#\1\2${{ env.GOPRIVATE }}/\1 ${{ env.opc-ua-browser-version }}#" ${{ inputs.WORKING_DIRECTORY }}/go.mod
       # Load packages
       - name: Run go mod tidy
         working-directory: ${{ inputs.WORKING_DIRECTORY }}
