@@ -30,6 +30,11 @@ on:
         description: The directory which defines the GraphQL schema and gqlgen generated files, default is an empty string.
         required: false
         type: string
+      MAKE_PREPARE:
+        description: If true, run `make prepare` before golangci-lint.
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -79,6 +84,11 @@ jobs:
         # variable from the previous step
         if: ${{ env.opc-ua-browser-version }}
         run: sed -i "s#\(opc-ua-browser.*\)\(=> \).*#\1\2${{ env.GOPRIVATE }}/\1 ${{ env.opc-ua-browser-version }}#" ${{ inputs.WORKING_DIRECTORY }}/go.mod
+      # Run make prepare
+      - name: Run make prepare
+        if: ${{ inputs.MAKE_PREPARE }}
+        working-directory: ${{ inputs.WORKING_DIRECTORY }}
+        run: make prepare
       # Load packages
       - name: Run go mod tidy
         working-directory: ${{ inputs.WORKING_DIRECTORY }}
