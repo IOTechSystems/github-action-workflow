@@ -52,6 +52,7 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
+      # Optionally setup access to docker repos
       # Install Golang
       - uses: actions/setup-go@v5
         with:
@@ -62,6 +63,25 @@ jobs:
         if: ${{ inputs.REQUIRED_PACKAGES != '' }}
         run: |
           sudo apt update && sudo apt install ${{ inputs.REQUIRED_PACKAGES }}
+            # Login to Docker Hub (only if credentials provided)
+            
+      # Login to Docker Hub (only if credentials provided)
+      - name: Login to Docker Hub
+        if: ${{ secrets.DOCKER_HUB_USERNAME && secrets.DOCKER_HUB_TOKEN }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      
+      # Login to JFrog registries (if using username + token)
+      - name: Login to JFrog Registries
+        if: ${{ secrets.JFROG_USERNAME && secrets.JFROG_TOKEN }}
+        run: |
+          echo "${{ secrets.JFROG_TOKEN }}" | docker login iotech-baseimages.jfrog.io -u "${{ secrets.JFROG_USERNAME }}" --password-stdin
+          echo "${{ secrets.JFROG_TOKEN }}" | docker login iotech-edgexpert.jfrog.io -u "${{ secrets.JFROG_USERNAME }}" --password-stdin
+          echo "${{ secrets.JFROG_TOKEN }}" | docker login iotech-releases.jfrog.io -u "${{ secrets.JFROG_USERNAME }}" --password-stdin
+          echo "${{ secrets.JFROG_TOKEN }}" | docker login iotech-services.jfrog.io -u "${{ secrets.JFROG_USERNAME }}" --password-stdin
+          
       # Set up environment for private modules
       - name: Set up for private modules
         if: ${{ inputs.USE_PRIVATE_MODULE }}
