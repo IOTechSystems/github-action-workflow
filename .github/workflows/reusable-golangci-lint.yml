@@ -72,14 +72,6 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
       
-      # Login to JFrog registries (if using username + token)
-      - name: Login to JFrog Registries
-        run: |
-          echo "${{ secrets.JFROG_TOKEN }}" | docker login iotech-baseimages.jfrog.io -u "${{ secrets.JFROG_USERNAME }}" --password-stdin
-          echo "${{ secrets.JFROG_TOKEN }}" | docker login iotech-edgexpert.jfrog.io -u "${{ secrets.JFROG_USERNAME }}" --password-stdin
-          echo "${{ secrets.JFROG_TOKEN }}" | docker login iotech-releases.jfrog.io -u "${{ secrets.JFROG_USERNAME }}" --password-stdin
-          echo "${{ secrets.JFROG_TOKEN }}" | docker login iotech-services.jfrog.io -u "${{ secrets.JFROG_USERNAME }}" --password-stdin
-          
       # Set up environment for private modules
       - name: Set up for private modules
         if: ${{ inputs.USE_PRIVATE_MODULE }}
