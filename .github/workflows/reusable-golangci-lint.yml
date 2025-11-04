@@ -17,10 +17,11 @@ on:
         description: The GolangCI-Lint config path which is relative to WORKING_DIRECTORY, default is no config.
         required: false
         type: string
-      GOLANGCI_LINT_VERSION:
+      GO_LINT_VERSION:
         description: The GolangCI-Lint version, default is v1.61.0.
         required: false
         type: string
+        default: v1.61.0
       REQUIRED_PACKAGES:
         description: The required packages are installed by apt, seperate the packages with spaces.
         required: false
@@ -45,7 +46,7 @@ jobs:
     name: lint
     runs-on: ubuntu-latest
     env:
-      GOLANGCI_LINT_VERSION: ${{ inputs.GOLANGCI_LINT_VERSION || 'v1.61.0' }}
+      GOLANGCI_LINT_VERSION: ${{ inputs.GO_LINT_VERSION }}
       GOLANGCI_LINT_FLAGS: --print-issued-lines --max-same-issues 50 --build-tags dev
       GOPRIVATE: github.com/IOTechSystems
     steps:
@@ -96,7 +97,8 @@ jobs:
           grep replace go.mod || true
           go mod tidy
       # Run Go linters       
-      - name: golangci-lint
+      - name: Run golangci-lint v1
+        if: startsWith(env.GOLANGCI_LINT_VERSION, 'v1.')
         uses: golangci/golangci-lint-action@c67416616c29c3c48d26b59c45cadb56966d80aa
         with:
           # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
@@ -108,4 +110,12 @@ jobs:
           # Optional: golangci-lint command line arguments.
           args: "${{ env.GOLANGCI_LINT_FLAGS }} ${{ inputs.GO_LINT_CONFIG_PATH != '' && format('--config {0}', inputs.GO_LINT_CONFIG_PATH) || '--no-config' }}"
           skip-cache: true
+      - name: Run golangci-lint v2+
+        if: ${{ !startsWith(env.GOLANGCI_LINT_VERSION, 'v1.') }}
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: ${{ env.GOLANGCI_LINT_VERSION }}
 
+          working-directory: ${{ inputs.WORKING_DIRECTORY }}
+
+          args: "${{ env.GOLANGCI_LINT_FLAGS }} ${{ inputs.GO_LINT_CONFIG_PATH != '' && format('--config {0}', inputs.GO_LINT_CONFIG_PATH) || '--no-config' }}"

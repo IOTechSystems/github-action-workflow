@@ -14,6 +14,7 @@ The workflow runs golangci-lint action and reports issues from linters.
 |--------|-------------|
 | `WORKING_DIRECTORY` | The working directory, default is project root. |
 | `GO_LINT_CONFIG_PATH` | The GolangCI-Lint config path which is relative to `WORKING_DIRECTORY`, default is no config. |
+| `GO_LINT_VERSION` | The GolangCI-Lint version, default is `v1.61.0`. |
 | `REQUIRED_PACKAGES` | The required packages are installed by `apt`, seperate the packages with spaces. |
 | `USE_PRIVATE_MODULE` | If true, set up the enviroment for the private go modules, and retrieve the modules versions from scripts/Jenkinsfile. |
 | `MAKE_PREPARE` | To indicate if the `make prepare` command should be run before running the linter. Default is false. |
