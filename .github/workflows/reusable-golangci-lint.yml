@@ -17,6 +17,10 @@ on:
         description: The GolangCI-Lint config path which is relative to WORKING_DIRECTORY, default is no config.
         required: false
         type: string
+      GOLANGCI_LINT_VERSION:
+        description: The GolangCI-Lint version, default is v1.61.0.
+        required: false
+        type: string
       REQUIRED_PACKAGES:
         description: The required packages are installed by apt, seperate the packages with spaces.
         required: false
@@ -41,7 +45,7 @@ jobs:
     name: lint
     runs-on: ubuntu-latest
     env:
-      GOLANGCI_LINT_VERSION: v1.61.0
+      GOLANGCI_LINT_VERSION: ${{ inputs.GOLANGCI_LINT_VERSION || 'v1.61.0' }}
       GOLANGCI_LINT_FLAGS: --print-issued-lines --max-same-issues 50 --build-tags dev
       GOPRIVATE: github.com/IOTechSystems
     steps:
