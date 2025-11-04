@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GOLANGCI_LINT_VERSION: ${{ inputs.GO_LINT_VERSION }}
-      GOLANGCI_LINT_FLAGS: --print-issued-lines --max-same-issues 50 --build-tags dev
+      GOLANGCI_LINT_FLAGS: --max-same-issues 50 --build-tags dev
       GOPRIVATE: github.com/IOTechSystems
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -108,7 +108,7 @@ jobs:
           working-directory: ${{ inputs.WORKING_DIRECTORY }}
 
           # Optional: golangci-lint command line arguments.
-          args: "${{ env.GOLANGCI_LINT_FLAGS }} ${{ inputs.GO_LINT_CONFIG_PATH != '' && format('--config {0}', inputs.GO_LINT_CONFIG_PATH) || '--no-config' }}"
+          args: "--print-issued-lines ${{ env.GOLANGCI_LINT_FLAGS }} ${{ inputs.GO_LINT_CONFIG_PATH != '' && format('--config {0}', inputs.GO_LINT_CONFIG_PATH) || '--no-config' }}"
           skip-cache: true
       - name: Run golangci-lint v2+
         if: ${{ !startsWith(env.GOLANGCI_LINT_VERSION, 'v1.') }}
@@ -119,3 +119,4 @@ jobs:
           working-directory: ${{ inputs.WORKING_DIRECTORY }}
 
           args: "${{ env.GOLANGCI_LINT_FLAGS }} ${{ inputs.GO_LINT_CONFIG_PATH != '' && format('--config {0}', inputs.GO_LINT_CONFIG_PATH) || '--no-config' }}"
+          skip-cache: true
