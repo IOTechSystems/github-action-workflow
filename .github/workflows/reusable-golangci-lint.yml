@@ -51,9 +51,9 @@ jobs:
       GOPRIVATE: github.com/IOTechSystems
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # Install Golang
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           # Retrieve go version from go.mod
           go-version-file: "${{ inputs.WORKING_DIRECTORY }}/go.mod"  
@@ -96,23 +96,24 @@ jobs:
         run: |
           grep replace go.mod || true
           go mod tidy
-      # Run Go linters       
+      # Run Go linters
+      # golangci-lint-action v7+ dropped support for golangci-lint v1, and the last v1-capable
+      # release runs on the deprecated node20, so install and run the binary directly instead.
       - name: Run golangci-lint v1
         if: startsWith(env.GOLANGCI_LINT_VERSION, 'v1.')
-        uses: golangci/golangci-lint-action@c67416616c29c3c48d26b59c45cadb56966d80aa
-        with:
-          # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
-          version: ${{ env.GOLANGCI_LINT_VERSION }}
-
-          # Optional: working directory, useful for monorepos
-          working-directory: ${{ inputs.WORKING_DIRECTORY }}
-
-          # Optional: golangci-lint command line arguments.
-          args: "--print-issued-lines ${{ env.GOLANGCI_LINT_FLAGS }} ${{ inputs.GO_LINT_CONFIG_PATH != '' && format('--config {0}', inputs.GO_LINT_CONFIG_PATH) || '--no-config' }}"
-          skip-cache: true
+        working-directory: ${{ inputs.WORKING_DIRECTORY }}
+        env:
+          # Passed through the environment rather than interpolated into the script below,
+          # so a caller-supplied path cannot inject shell commands.
+          CONFIG_ARG: ${{ inputs.GO_LINT_CONFIG_PATH != '' && format('--config {0}', inputs.GO_LINT_CONFIG_PATH) || '--no-config' }}
+        run: |
+          go install "github.com/golangci/golangci-lint/cmd/golangci-lint@${GOLANGCI_LINT_VERSION}"
+          "$(go env GOPATH)/bin/golangci-lint" run \
+            --print-issued-lines \
+            $GOLANGCI_LINT_FLAGS $CONFIG_ARG
       - name: Run golangci-lint v2+
         if: ${{ !startsWith(env.GOLANGCI_LINT_VERSION, 'v1.') }}
-        uses: golangci/golangci-lint-action@v8
+        uses: golangci/golangci-lint-action@v9
         with:
           version: ${{ env.GOLANGCI_LINT_VERSION }}
 
