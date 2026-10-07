@@ -6,12 +6,17 @@ name: sonarqube-scan
 
 on:
   workflow_call:
-    inputs: 
+    inputs:
       PROJECT_NAME:
         description: The repository name for SonarQube.
         required: true
-        type: string   
- 
+        type: string
+      USE_PRIVATE_MODULE:
+        description: If true, set up the environment for the private go modules.
+        required: false
+        type: boolean
+        default: false
+
 permissions:
   contents: read
 
@@ -19,6 +24,8 @@ jobs:
   sonarqube-scan:
     if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
+    env:
+      GOPRIVATE: ${{ inputs.USE_PRIVATE_MODULE && 'github.com/IOTechSystems' || '' }}
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v7
@@ -26,9 +33,17 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           # Retrieve go version from go.mod
-          go-version-file: go.mod 
+          go-version-file: go.mod
       - name: Run unit tests
+        env:
+          USE_PRIVATE_MODULE: ${{ inputs.USE_PRIVATE_MODULE }}
+          JENKINS_PAT: ${{ secrets.JENKINS_PAT }}
         run: |
+          if [ "$USE_PRIVATE_MODULE" = "true" ]; then
+            git config --global --add "url.https://${JENKINS_PAT}@${GOPRIVATE}/.insteadOf" "https://${GOPRIVATE}/"
+            # Remove the credential before the later third-party scan action runs, even if a command below fails.
+            trap 'git config --global --remove-section "url.https://${JENKINS_PAT}@${GOPRIVATE}/"' EXIT
+          fi
           sudo apt update && sudo apt-get install libzmq3-dev
           make tidy
           make test
