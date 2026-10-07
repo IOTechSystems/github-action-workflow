@@ -16,7 +16,7 @@ The workflow runs golangci-lint action and reports issues from linters.
 | `GO_LINT_CONFIG_PATH` | The GolangCI-Lint config path which is relative to `WORKING_DIRECTORY`, default is no config. |
 | `GO_LINT_VERSION` | The GolangCI-Lint version, default is `v1.61.0`. |
 | `REQUIRED_PACKAGES` | The required packages are installed by `apt`, seperate the packages with spaces. |
-| `USE_PRIVATE_MODULE` | If true, set up the enviroment for the private go modules, and retrieve the modules versions from scripts/Jenkinsfile. |
+| `USE_PRIVATE_MODULE` | If true, set up the environment for the private go modules, and retrieve the modules versions from scripts/Jenkinsfile. |
 | `MAKE_PREPARE` | To indicate if the `make prepare` command should be run before running the linter. Default is false. |
 
 ### sonarqube-scan
@@ -26,6 +26,7 @@ The workflow runs sonarqube-scan action to detect Bugs, Vulnerabilities and Code
 | Inputs | Description |
 |--------|-------------|
 | `PROJECT_NAME` | **Required.** The repository name for SonarQube. |
+| `USE_PRIVATE_MODULE` | If true, set up the environment for the private go modules. |
 
 ## Example
 
@@ -60,6 +61,8 @@ jobs:
       with:
         # Required: repository name
         PROJECT_NAME: go-mod-core-contracts
-      # Required: pass SONAR_TOKEN to the reusable workflow  
+        # Optional: set to true if the repository depends on private go modules, default is false
+        USE_PRIVATE_MODULE: false
+      # Required: pass SONAR_TOKEN (and JENKINS_PAT when USE_PRIVATE_MODULE is true) to the reusable workflow
       secrets: inherit
 ```
